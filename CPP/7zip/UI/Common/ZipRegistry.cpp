@@ -11,6 +11,9 @@
 #include "../../../Windows/Registry.h"
 #include "../../../Windows/Synchronization.h"
 
+#include "../FileManager/RegistryUtils.h"
+
+// #include "../Explorer/ContextMenuFlags.h"
 #include "ZipRegistry.h"
 
 using namespace NWindows;
@@ -97,12 +100,14 @@ static LPCTSTR const kSplitDest = TEXT("SplitDest");
 static LPCTSTR const kElimDup = TEXT("ElimDup");
 // static LPCTSTR const kAltStreams = TEXT("AltStreams");
 static LPCTSTR const kNtSecur = TEXT("Security");
+static LPCTSTR const kMemLimit = TEXT("MemLimit");
 
 void CInfo::Save() const
 {
   CS_LOCK
   CKey key;
   CreateMainKey(key, kKeyName);
+  UStringVector Empty;
 
   if (PathMode_Force)
     key.SetValue(kExtractMode, (UInt32)PathMode);
@@ -116,7 +121,10 @@ void CInfo::Save() const
   Key_Set_BoolPair(key, kShowPassword, ShowPassword);
 
   key.RecurseDeleteKey(kPathHistory);
-  key.SetValue_Strings(kPathHistory, Paths);
+  if (WantPathHistory())
+    key.SetValue_Strings(kPathHistory, Paths);
+  else
+    key.SetValue_Strings(kPathHistory, Empty);
 }
 
 void Save_ShowPassword(bool showPassword)
@@ -125,6 +133,14 @@ void Save_ShowPassword(bool showPassword)
   CKey key;
   CreateMainKey(key, kKeyName);
   key.SetValue(kShowPassword, showPassword);
+}
+
+void Save_LimitGB(UInt32 limit_GB)
+{
+  CS_LOCK
+  CKey key;
+  CreateMainKey(key, kKeyName);
+  Key_Set_UInt32(key, kMemLimit, limit_GB);
 }
 
 void CInfo::Load()
@@ -175,6 +191,19 @@ bool Read_ShowPassword()
   return showPassword;
 }
 
+UInt32 Read_LimitGB()
+{
+  CS_LOCK
+  CKey key;
+  if (OpenMainKey(key, kKeyName) == ERROR_SUCCESS)
+  {
+    UInt32 v;
+    if (key.QueryValue(kMemLimit, v) == ERROR_SUCCESS)
+      return v;
+  }
+  return (UInt32)(Int32)-1;
+}
+
 }
 
 namespace NCompression
@@ -191,6 +220,7 @@ static LPCTSTR const kOptionsKeyName = TEXT("Options");
 
 static LPCTSTR const kLevel = TEXT("Level");
 static LPCTSTR const kDictionary = TEXT("Dictionary");
+// static LPCTSTR const kDictionaryChain = TEXT("DictionaryChain");
 static LPCTSTR const kOrder = TEXT("Order");
 static LPCTSTR const kBlockSize = TEXT("BlockSize");
 static LPCTSTR const kNumThreads = TEXT("NumThreads");
@@ -233,6 +263,7 @@ static LPCWSTR const kMemUse = L"MemUse"
 
 void CInfo::Save() const
 {
+  UStringVector Empty;
   CS_LOCK
 
   CKey key;
@@ -250,7 +281,11 @@ void CInfo::Save() const
   key.SetValue(kShowPassword, ShowPassword);
   key.SetValue(kEncryptHeaders, EncryptHeaders);
   key.RecurseDeleteKey(kArcHistory);
-  key.SetValue_Strings(kArcHistory, ArcPaths);
+
+  if (WantArcHistory())
+    key.SetValue_Strings(kArcHistory, ArcPaths);
+  else
+    key.SetValue_Strings(kArcHistory, Empty);
 
   key.RecurseDeleteKey(kOptionsKeyName);
   {
@@ -269,6 +304,7 @@ void CInfo::Save() const
 
       Key_Set_UInt32(fk, kLevel, fo.Level);
       Key_Set_UInt32(fk, kDictionary, fo.Dictionary);
+      // Key_Set_UInt32(fk, kDictionaryChain, fo.DictionaryChain);
       Key_Set_UInt32(fk, kOrder, fo.Order);
       Key_Set_UInt32(fk, kBlockSize, fo.BlockLogSize);
       Key_Set_UInt32(fk, kNumThreads, fo.NumThreads);
@@ -326,6 +362,7 @@ void CInfo::Load()
 
           Key_Get_UInt32(fk, kLevel, fo.Level);
           Key_Get_UInt32(fk, kDictionary, fo.Dictionary);
+          // Key_Get_UInt32(fk, kDictionaryChain, fo.DictionaryChain);
           Key_Get_UInt32(fk, kOrder, fo.Order);
           Key_Get_UInt32(fk, kBlockSize, fo.BlockLogSize);
           Key_Get_UInt32(fk, kNumThreads, fo.NumThreads);
@@ -549,7 +586,15 @@ void CContextMenuInfo::Load()
 
   WriteZone = (UInt32)(Int32)-1;
 
-  Flags = (UInt32)(Int32)-1;
+  /* we can disable email items by default,
+     because email code doesn't work in some systems */
+  Flags = (UInt32)(Int32)-1
+      /*
+      & ~NContextMenuFlags::kCompressEmail
+      & ~NContextMenuFlags::kCompressTo7zEmail
+      & ~NContextMenuFlags::kCompressToZipEmail
+      */
+      ;
   Flags_Def = false;
   
   CS_LOCK

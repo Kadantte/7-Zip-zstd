@@ -17,6 +17,9 @@ COMMON_OBJS = \
   $O\Sha256Reg.obj \
   $O\Sha384Reg.obj \
   $O\Sha512Reg.obj \
+  $O\Sha3-256Reg.obj \
+  $O\Sha3-384Reg.obj \
+  $O\Sha3-512Reg.obj \
   $O\StringConvert.obj \
   $O\StringToInt.obj \
   $O\UTFConvert.obj \
@@ -67,6 +70,7 @@ AR_OBJS = \
   $O\ArHandler.obj \
   $O\ArjHandler.obj \
   $O\Base64Handler.obj \
+  $O\BrotliHandler.obj \
   $O\Bz2Handler.obj \
   $O\ComHandler.obj \
   $O\CpioHandler.obj \
@@ -246,7 +250,7 @@ COMPRESS_OBJS = \
   $O\ZlibDecoder.obj \
   $O\ZlibEncoder.obj \
   $O\ZDecoder.obj \
-
+  $O\ZstdDecoder.obj \
 
 CRYPTO_OBJS = \
   $O\7zAes.obj \
@@ -269,6 +273,7 @@ HASHES_OBJS = \
   $O\md2.obj \
   $O\md4.obj \
   $O\md5.obj \
+  $O\sha3.obj \
   $O\sha512.obj \
 
 C_OBJS = \
@@ -302,7 +307,9 @@ C_OBJS = \
   $O\Ppmd8Dec.obj \
   $O\Ppmd8Enc.obj \
   $O\Sort.obj \
+  $O\SwapBytes.obj \
   $O\Threads.obj \
+  $O\Xxh64.obj \
   $O\Xz.obj \
   $O\XzDec.obj \
   $O\XzEnc.obj \

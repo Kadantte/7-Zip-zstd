@@ -1,6 +1,7 @@
 PROG = 7zxa.dll
 DEF_FILE = ../../Archive/Archive2.def
-CFLAGS = $(CFLAGS) -DEXTRACT_ONLY \
+CFLAGS = $(CFLAGS) \
+  -DZ7_EXTRACT_ONLY \
 
 COMMON_OBJS = \
   $O\CRC.obj \
@@ -90,6 +91,7 @@ CRYPTO_OBJS = \
   $O\MyAesReg.obj \
 
 C_OBJS = \
+  $O\7zStream.obj \
   $O\Alloc.obj \
   $O\Bcj2.obj \
   $O\Bra.obj \
@@ -103,6 +105,7 @@ C_OBJS = \
   $O\MtDec.obj \
   $O\Ppmd7.obj \
   $O\Ppmd7Dec.obj \
+  $O\SwapBytes.obj \
   $O\Threads.obj \
 
 COMPRESS_OBJS = $(COMPRESS_OBJS) \
@@ -112,6 +115,12 @@ COMPRESS_OBJS = $(COMPRESS_OBJS) \
   $O\Lz4Register.obj \
   $O\LizardDecoder.obj \
   $O\LizardRegister.obj \
+  $O\liz_entropy_common.obj \
+  $O\liz_fse_compress.obj \
+  $O\liz_fse_decompress.obj \
+  $O\liz_huf_compress.obj \
+  $O\liz_huf_decompress.obj \
+  $O\liz_xxhash.obj \
   $O\Lz5Decoder.obj \
   $O\Lz5Register.obj \
   $O\ZstdDecoder.obj \
@@ -187,7 +196,6 @@ ZSTD_OBJS = \
   $O\zstd_fast.obj \
   $O\zstd_lazy.obj \
   $O\zstd_ldm.obj \
-  $O\zstd_trace.obj \
   $O\zstdmt_compress.obj \
   $O\zstd_opt.obj \
   $O\zstd_v01.obj \
