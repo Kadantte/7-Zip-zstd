@@ -1,5 +1,7 @@
 
 /*
+ * Taken from lib/crypto/* of samba-4.5.8.tar.gz.
+ *
  * Copyright (c) 1995 - 2001 Kungliga Tekniska Högskolan
  * (Royal Institute of Technology, Stockholm, Sweden).
  * All rights reserved.
@@ -33,7 +35,7 @@
  */
 
 #include "hash.h"
-#include "md5.h"
+#include "md5c.h"
 
 #define A m->counter[0]
 #define B m->counter[1]

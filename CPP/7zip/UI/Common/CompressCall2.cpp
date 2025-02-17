@@ -2,6 +2,8 @@
 
 #include "StdAfx.h"
 
+#ifndef Z7_EXTERNAL_CODECS
+
 #include "../../../Common/MyException.h"
 
 #include "../../UI/Common/EnumDirItems.h"
@@ -33,7 +35,7 @@ static void ThrowException_if_Error(HRESULT res)
     throw CSystemException(res);
 }
 
-#ifdef EXTERNAL_CODECS
+#ifdef Z7_EXTERNAL_CODECS
 
 #define CREATE_CODECS \
   CCodecs *codecs = new CCodecs; \
@@ -42,10 +44,10 @@ static void ThrowException_if_Error(HRESULT res)
   Codecs_AddHashArcHandler(codecs);
 
 #define LOAD_EXTERNAL_CODECS \
-    CExternalCodecs __externalCodecs; \
-    __externalCodecs.GetCodecs = codecs; \
-    __externalCodecs.GetHashers = codecs; \
-    ThrowException_if_Error(__externalCodecs.Load());
+    CExternalCodecs _externalCodecs; \
+    _externalCodecs.GetCodecs = codecs; \
+    _externalCodecs.GetHashers = codecs; \
+    ThrowException_if_Error(_externalCodecs.Load());
 
 #else
 
@@ -58,17 +60,6 @@ static void ThrowException_if_Error(HRESULT res)
 #define LOAD_EXTERNAL_CODECS
 
 #endif
-
-
-
- 
-UString GetQuotedString(const UString &s)
-{
-  UString s2 ('\"');
-  s2 += s;
-  s2 += '\"';
-  return s2;
-}
 
 static void ErrorMessage(LPCWSTR message)
 {
@@ -321,3 +312,5 @@ void Benchmark(bool totalMode)
   
   MY_TRY_FINISH
 }
+
+#endif

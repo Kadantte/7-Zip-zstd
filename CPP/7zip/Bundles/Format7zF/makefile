@@ -1,9 +1,12 @@
 PROG = 7z.dll
+# USE_C_LZFINDOPT = 1
 DEF_FILE = ../../Archive/Archive2.def
-CFLAGS = $(CFLAGS) -DEXTERNAL_CODECS -DZSTD_LEGACY_SUPPORT -DZSTD_MULTITHREAD
+CFLAGS = $(CFLAGS) \
+  -DZ7_EXTERNAL_CODECS \
+  -DZSTD_LEGACY_SUPPORT -DZSTD_MULTITHREAD
 
 !IFNDEF UNDER_CE
-CFLAGS = $(CFLAGS) -D_7ZIP_LARGE_PAGES
+# CFLAGS = $(CFLAGS) -DZ7_LARGE_PAGES
 !ENDIF
 
 !include "Arc.mak"
@@ -25,6 +28,12 @@ COMPRESS_OBJS = $(COMPRESS_OBJS) \
   $O\LizardDecoder.obj \
   $O\LizardEncoder.obj \
   $O\LizardRegister.obj \
+  $O\liz_entropy_common.obj \
+  $O\liz_fse_compress.obj \
+  $O\liz_fse_decompress.obj \
+  $O\liz_huf_compress.obj \
+  $O\liz_huf_decompress.obj \
+  $O\liz_xxhash.obj \
   $O\Lz5Decoder.obj \
   $O\Lz5Encoder.obj \
   $O\Lz5Register.obj \
@@ -103,7 +112,6 @@ ZSTD_OBJS = \
   $O\zstd_fast.obj \
   $O\zstd_lazy.obj \
   $O\zstd_ldm.obj \
-  $O\zstd_trace.obj \
   $O\zstdmt_compress.obj \
   $O\zstd_opt.obj \
   $O\zstd_v01.obj \
